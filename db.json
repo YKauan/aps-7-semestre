@@ -1,0 +1,25 @@
+{
+  "indicadores": {
+    "1a7c5c1e-3e4b-4a88-9f1a-6d7c8b9a0e1b": {
+      "empresa": "ABC Indústria de Alimentos",
+      "ano": 2024,
+      "consumo_agua_m3": 1500,
+      "residuos_ton": 75,
+      "emissoes_co2_ton": 320
+    },
+    "2b8d6d2f-4f5c-4b99-0g2b-7e8d9c0a1f2c": {
+      "empresa": "Transportadora XYZ",
+      "ano": 2023,
+      "consumo_agua_m3": 400,
+      "residuos_ton": 15,
+      "emissoes_co2_ton": 950
+    },
+    "bdfb6a49-ff6d-4319-a5d8-6ae85c8f34bb": {
+      "empresa": "OTC VD",
+      "ano": 2025,
+      "consumo_agua_m3": 2000,
+      "residuos_ton": 80,
+      "emissoes_co2_ton": 12
+    }
+  }
+}

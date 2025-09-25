@@ -1,70 +1,90 @@
-# servidor_api.py
-# Web Service para Gestão Ambiental em Goiás (OGAS-API)
-
+import json
+import uuid
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 
-# Inicialização do aplicativo Flask
 app = Flask(__name__)
+CORS(app)
 
-# Simulação de um banco de dados em memória
-indicadores_db = {
-    1: {"empresa": "ABC Indústria de Alimentos", "ano": 2023, "consumo_agua_m3": 1500, "residuos_ton": 75, "emissoes_co2_ton": 320},
-    2: {"empresa": "Transportadora XYZ", "ano": 2023, "consumo_agua_m3": 400, "residuos_ton": 15, "emissoes_co2_ton": 950},
-}
-proximo_id = 3
+DB_FILE = 'db.json'
 
-# Rota para obter todos os indicadores
+# Carregando o 'database'
+def carregar_dados():
+    try:
+        with open(DB_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        print("nao foi possivel carregar o banco")
+        return {"indicadores": {}}
+
+# Salva os dados no 'database'
+def salvar_dados(dados):
+    with open(DB_FILE, 'w', encoding='utf-8') as f:
+        json.dump(dados, f, indent=2, ensure_ascii=False)
+
+# Lista os indicadores existentes
 @app.route('/indicadores', methods=['GET'])
 def get_indicadores():
-    """Retorna a lista de todos os indicadores ambientais."""
-    return jsonify(indicadores_db)
+    dados = carregar_dados()
+    return jsonify(dados.get('indicadores', {}))
 
-# Rota para obter um indicador específico pelo ID
-@app.route('/indicadores/<int:id>', methods=['GET'])
+# Lista apenas um indicador
+@app.route('/indicadores/<string:id>', methods=['GET'])
 def get_indicador(id):
-    """Retorna um indicador ambiental específico."""
-    indicador = indicadores_db.get(id)
+    dados = carregar_dados()
+    indicador = dados.get('indicadores', {}).get(id)
     if not indicador:
         return jsonify({"erro": "Indicador não encontrado"}), 404
     return jsonify(indicador)
 
-# Rota para adicionar um novo indicador
+# Adiciona um novo indicador
 @app.route('/indicadores', methods=['POST'])
 def add_indicador():
-    """Adiciona um novo indicador ambiental."""
-    global proximo_id
     novo_indicador = request.json
     if not novo_indicador or not all(k in novo_indicador for k in ["empresa", "ano", "consumo_agua_m3", "residuos_ton", "emissoes_co2_ton"]):
         return jsonify({"erro": "Dados incompletos"}), 400
     
-    indicadores_db[proximo_id] = novo_indicador
-    proximo_id += 1
+    dados = carregar_dados()
+    
+    # Gerando o novo uuid
+    novo_id = str(uuid.uuid4())
+    
+    dados['indicadores'][novo_id] = novo_indicador
+    
+    salvar_dados(dados)
+    
     return jsonify(novo_indicador), 201
 
-# Rota para atualizar um indicador existente
-@app.route('/indicadores/<int:id>', methods=['PUT'])
+# Atualiza um indicador
+@app.route('/indicadores/<string:id>', methods=['PUT'])
 def update_indicador(id):
-    """Atualiza um indicador ambiental existente."""
-    if id not in indicadores_db:
+    dados = carregar_dados()
+
+    if id not in dados.get('indicadores', {}):
         return jsonify({"erro": "Indicador não encontrado"}), 404
         
     dados_atualizados = request.json
     if not dados_atualizados:
         return jsonify({"erro": "Dados inválidos"}), 400
         
-    indicadores_db[id].update(dados_atualizados)
-    return jsonify(indicadores_db[id])
+    dados['indicadores'][id].update(dados_atualizados)
+    salvar_dados(dados)
+    
+    return jsonify(dados['indicadores'][id])
 
-# Rota para remover um indicador
-@app.route('/indicadores/<int:id>', methods=['DELETE'])
+# Deleta um indicador
+@app.route('/indicadores/<string:id>', methods=['DELETE'])
 def delete_indicador(id):
-    """Remove um indicador ambiental."""
-    if id not in indicadores_db:
+    dados = carregar_dados()
+
+    if id not in dados.get('indicadores', {}):
         return jsonify({"erro": "Indicador não encontrado"}), 404
         
-    del indicadores_db[id]
+    del dados['indicadores'][id]
+    salvar_dados(dados)
+    
     return '', 204
 
-# Execução do servidor
+# Sobe o servidor 
 if __name__ == '__main__':
     app.run(debug=True)

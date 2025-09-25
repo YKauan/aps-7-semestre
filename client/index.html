@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OGAS - Gestão Ambiental</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Oficina de Gestão Ambiental Sustentável (OGAS)</h1>
+        <p>Dashboard de Monitoramento de Indicadores Ambientais</p>
+    </header>
+
+    <main>
+        <section id="form-section" class="card">
+            <h2 id="form-title">Adicionar Novo Indicador</h2>
+            <form id="indicador-form">
+                <input type="hidden" id="indicador-id">
+                <div class="input-group">
+                    <label for="empresa">Nome da Empresa</label>
+                    <input type="text" id="empresa" required>
+                </div>
+                <div class="input-group">
+                    <label for="ano">Ano de Referência</label>
+                    <input type="number" id="ano" required>
+                </div>
+                <div class="input-group">
+                    <label for="consumo_agua_m3">Consumo de Água (m³)</label>
+                    <input type="number" id="consumo_agua_m3" step="0.1" required>
+                </div>
+                <div class="input-group">
+                    <label for="residuos_ton">Geração de Resíduos (ton)</label>
+                    <input type="number" id="residuos_ton" step="0.1" required>
+                </div>
+                <div class="input-group">
+                    <label for="emissoes_co2_ton">Emissões de CO2 (ton)</label>
+                    <input type="number" id="emissoes_co2_ton" step="0.1" required>
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">Adicionar Indicador</button>
+                    <button type="button" id="btn-cancelar" class="btn btn-secondary" style="display: none;">Cancelar Edição</button>
+                </div>
+            </form>
+        </section>
+
+        <section id="list-section">
+            <h2>Indicadores Registrados</h2>
+            <div id="indicadores-lista">
+                <p id="loading-message">Carregando indicadores...</p>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
