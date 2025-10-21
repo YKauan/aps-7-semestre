@@ -8,7 +8,6 @@ CORS(app)
 
 DB_FILE = 'db.json'
 
-# Carregando o 'database'
 def carregar_dados():
     try:
         with open(DB_FILE, 'r', encoding='utf-8') as f:
@@ -17,7 +16,6 @@ def carregar_dados():
         print("nao foi possivel carregar o banco")
         return {"indicadores": {}}
 
-# Salva os dados no 'database'
 def salvar_dados(dados):
     with open(DB_FILE, 'w', encoding='utf-8') as f:
         json.dump(dados, f, indent=2, ensure_ascii=False)
