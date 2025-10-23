@@ -8,6 +8,7 @@ CORS(app)
 
 DB_FILE = 'db.json'
 
+# Carrega os dados do banco
 def carregar_dados():
     try:
         with open(DB_FILE, 'r', encoding='utf-8') as f:
@@ -16,6 +17,7 @@ def carregar_dados():
         print("nao foi possivel carregar o banco")
         return {"indicadores": {}}
 
+# Sava os dados no banco
 def salvar_dados(dados):
     with open(DB_FILE, 'w', encoding='utf-8') as f:
         json.dump(dados, f, indent=2, ensure_ascii=False)
@@ -43,8 +45,6 @@ def add_indicador():
         return jsonify({"erro": "Dados incompletos"}), 400
     
     dados = carregar_dados()
-    
-    # Gerando o novo uuid
     novo_id = str(uuid.uuid4())
     
     dados['indicadores'][novo_id] = novo_indicador

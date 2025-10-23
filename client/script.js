@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitButton = form.querySelector('button[type="submit"]');
     const cancelButton = document.getElementById('btn-cancelar');
 
-    // Função para buscar e renderizar os indicadores
+    // Busca e renderiza os indicadores
     const fetchAndRenderIndicadores = async () => {
         loadingMessage.style.display = 'block';
         listaIndicadores.innerHTML = '';
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Função para resetar o formulário
+    // Reseta o formulario
     const resetForm = () => {
         form.reset();
         indicadorIdInput.value = '';
@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cancelButton.style.display = 'none';
     };
 
-    // Manipulador de envio do formulário (Adicionar ou Atualizar)
+    // Envio do formulario Incluir / Alterar (submit)
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -95,14 +95,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Manipulador de cliques na lista (Editar e Excluir)
+    // Manipula edicao / exclusao
     listaIndicadores.addEventListener('click', async (e) => {
         const target = e.target;
         const id = target.dataset.id;
 
         if (!id) return;
 
-        // Ação de Excluir
+        // Acao de excluir
         if (target.classList.contains('btn-delete')) {
             if (confirm('Tem certeza que deseja excluir este indicador?')) {
                 try {
@@ -115,14 +115,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Ação de Editar
+        // Acao de editar
         if (target.classList.contains('btn-edit')) {
             try {
                 const response = await fetch(`${API_URL}/${id}`);
                 if (!response.ok) throw new Error('Não foi possível carregar dados para edição.');
                 const indicador = await response.json();
                 
-                // Preenche o formulário
+                // Preenche o formulario
                 indicadorIdInput.value = id;
                 empresaInput.value = indicador.empresa;
                 anoInput.value = indicador.ano;
@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 residuosInput.value = indicador.residuos_ton;
                 emissoesCo2Input.value = indicador.emissoes_co2_ton;
 
-                // Ajusta a UI do formulário para o modo de edição
+                // Ajusta a UI para o modo de edicao
                 formTitle.textContent = 'Editando Indicador';
                 submitButton.textContent = 'Salvar Alterações';
                 cancelButton.style.display = 'inline-block';
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Botão de cancelar edição
+    // Cancela edicao
     cancelButton.addEventListener('click', resetForm);
 
     // Carga inicial dos dados
