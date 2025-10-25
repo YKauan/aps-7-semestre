@@ -1,88 +1,70 @@
-import json
-import uuid
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from db import db_service
 
+# Cria o App e configura o CORS
 app = Flask(__name__)
 CORS(app)
 
-DB_FILE = 'db.json'
-
-# Carrega os dados do banco
-def carregar_dados():
-    try:
-        with open(DB_FILE, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        print("nao foi possivel carregar o banco")
-        return {"indicadores": {}}
-
-# Sava os dados no banco
-def salvar_dados(dados):
-    with open(DB_FILE, 'w', encoding='utf-8') as f:
-        json.dump(dados, f, indent=2, ensure_ascii=False)
-
-# Lista os indicadores existentes
+# Retorna todos os indicadores
 @app.route('/indicadores', methods=['GET'])
 def get_indicadores():
-    dados = carregar_dados()
-    return jsonify(dados.get('indicadores', {}))
+    result, error = db_service.get_all_indicadores()
+    if error:
+        return jsonify({"erro": error}), 500
+    return jsonify(result)
 
-# Lista apenas um indicador
-@app.route('/indicadores/<string:id>', methods=['GET'])
+# Lista um indicador especifico
+@app.route('/indicadores/<int:id>', methods=['GET'])
 def get_indicador(id):
-    dados = carregar_dados()
-    indicador = dados.get('indicadores', {}).get(id)
-    if not indicador:
+    result, error = db_service.get_indicador_by_id(id)
+    if error:
+        return jsonify({"erro": error}), 500
+    if not result:
         return jsonify({"erro": "Indicador não encontrado"}), 404
-    return jsonify(indicador)
+    return jsonify(result)
 
-# Adiciona um novo indicador
+# Adiciona um indicador
 @app.route('/indicadores', methods=['POST'])
 def add_indicador():
     novo_indicador = request.json
     if not novo_indicador or not all(k in novo_indicador for k in ["empresa", "ano", "consumo_agua_m3", "residuos_ton", "emissoes_co2_ton"]):
         return jsonify({"erro": "Dados incompletos"}), 400
     
-    dados = carregar_dados()
-    novo_id = str(uuid.uuid4())
+    new_record, error = db_service.add_new_indicador(novo_indicador)
+    if error:
+        return jsonify({"erro": error}), 500
     
-    dados['indicadores'][novo_id] = novo_indicador
-    
-    salvar_dados(dados)
-    
-    return jsonify(novo_indicador), 201
+    return jsonify(new_record), 201
 
 # Atualiza um indicador
-@app.route('/indicadores/<string:id>', methods=['PUT'])
+@app.route('/indicadores/<int:id>', methods=['PUT'])
 def update_indicador(id):
-    dados = carregar_dados()
-
-    if id not in dados.get('indicadores', {}):
-        return jsonify({"erro": "Indicador não encontrado"}), 404
-        
     dados_atualizados = request.json
     if not dados_atualizados:
         return jsonify({"erro": "Dados inválidos"}), 400
-        
-    dados['indicadores'][id].update(dados_atualizados)
-    salvar_dados(dados)
+
+    rowcount, updated_record, error = db_service.update_indicador_by_id(id, dados_atualizados)
     
-    return jsonify(dados['indicadores'][id])
+    if error:
+        return jsonify({"erro": error}), 500
+    if rowcount == 0:
+        return jsonify({"erro": "Indicador não encontrado"}), 404
+    
+    return jsonify(updated_record)
 
 # Deleta um indicador
-@app.route('/indicadores/<string:id>', methods=['DELETE'])
+@app.route('/indicadores/<int:id>', methods=['DELETE'])
 def delete_indicador(id):
-    dados = carregar_dados()
-
-    if id not in dados.get('indicadores', {}):
+    rowcount, error = db_service.delete_indicador_by_id(id)
+    
+    if error:
+        return jsonify({"erro": error}), 500
+    if rowcount == 0:
         return jsonify({"erro": "Indicador não encontrado"}), 404
         
-    del dados['indicadores'][id]
-    salvar_dados(dados)
-    
     return '', 204
 
-# Sobe o servidor 
+# Executa o servidor
 if __name__ == '__main__':
     app.run(debug=True)

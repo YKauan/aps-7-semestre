@@ -22,17 +22,17 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch(API_URL);
             if (!response.ok) throw new Error('Erro ao buscar dados da API');
+            
             const data = await response.json();
             
             loadingMessage.style.display = 'none';
 
-            if (Object.keys(data).length === 0) {
+            if (data.length === 0) {
                 listaIndicadores.innerHTML = '<p>Nenhum indicador registrado ainda.</p>';
                 return;
             }
 
-            for (const id in data) {
-                const indicador = data[id];
+            data.forEach(indicador => {
                 const card = document.createElement('div');
                 card.className = 'indicador-card';
                 card.innerHTML = `
@@ -41,12 +41,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p><strong>Geração de Resíduos:</strong> ${indicador.residuos_ton} ton</p>
                     <p><strong>Emissões de CO2:</strong> ${indicador.emissoes_co2_ton} ton</p>
                     <div class="card-actions">
-                        <button class="btn-edit" data-id="${id}">Editar</button>
-                        <button class="btn-delete" data-id="${id}">Excluir</button>
+                        <button class="btn-edit" data-id="${indicador.id}">Editar</button>
+                        <button class="btn-delete" data-id="${indicador.id}">Excluir</button>
                     </div>
                 `;
                 listaIndicadores.appendChild(card);
-            }
+            });
+            
         } catch (error) {
             loadingMessage.style.display = 'none';
             listaIndicadores.innerHTML = `<p style="color: #ff4d4d;">${error.message}</p>`;
